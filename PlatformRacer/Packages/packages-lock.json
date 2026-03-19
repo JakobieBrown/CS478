@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.rlabrecque.steamworks.net": {
+      "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2025.162.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "af710043b9097e8ffedf74d67503c3a7eb498260"
+    },
     "com.unity.2d.animation": {
       "version": "13.0.4",
       "depth": 0,
@@ -109,6 +116,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.cinemachine": {
+      "version": "2.10.6",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.31"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "2.11.3",
       "depth": 0,
@@ -187,7 +203,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.netcode.gameobjects": {
-      "version": "2.9.2",
+      "version": "2.10.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
