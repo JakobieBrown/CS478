@@ -47,8 +47,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     public InputReader input;
     [HideInInspector] public Rigidbody2D rb;
-    [SerializeField] public float acceleration = 1;
-    [SerializeField] public float JumpForce = 100f;
+    public StatBlock StatBlock;
     public bool onGround;
     public float raycastDistance = 0.1f;
     public LayerMask groundLayer;
@@ -93,6 +92,7 @@ public class PlayerController : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         clientNetworkTransform = GetComponent<ClientNetworkTransform>();
+        StatBlock = GetComponent<StatBlock>();
         input.Enable();
 
         stateMachine = new PlayerStateMachine(new PlayerStateFactory(this), this);

@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: -2941076818514268184}
   - component: {fileID: 1072948573494845647}
   - component: {fileID: -1426928058381942352}
+  - component: {fileID: 5720254701911547271}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -209,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3537781995
+  GlobalObjectIdHash: 3728869696
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -274,8 +275,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   input: {fileID: 11400000, guid: 195bdd4fb7fab064c8d1f1396ec7917f, type: 2}
   rb: {fileID: 0}
-  acceleration: 10
-  JumpForce: 500
+  StatBlock: {fileID: 0}
   onGround: 0
   raycastDistance: 1.1
   groundLayer:
@@ -356,6 +356,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5720254701911547271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3355434079170145332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a11bb496306ac4a47880163767630f5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatBlock
+  _acceleration: 10
+  _jumpForce: 500
 --- !u!1 &5925163922361883975
 GameObject:
   m_ObjectHideFlags: 0
