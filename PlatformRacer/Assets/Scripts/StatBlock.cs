@@ -15,11 +15,17 @@ public class StatBlock : MonoBehaviour
     private CountdownTimer accelerationBoostTimer;
     private CountdownTimer accelerationPenaltyTimer;
 
+    public void Awake()
+    {
+        accelerationBoostTimer = new CountdownTimer(0);
+        accelerationPenaltyTimer = new CountdownTimer(0);
+    }
+
     public void BoostAcceleration(float bonusAcceleration, float duration)
     {
         if (bonusAcceleration < 0)
             Debug.LogWarning("Value supplied to LowerAcceleration(float, float) is non-positive, which will result in an decrease in acceleration.");
-        accelerationBoostTimer = new CountdownTimer(duration);
+        accelerationBoostTimer.Reset(duration);
         accelerationBoostTimer.OnTimerStart += () => { _bonusAcceleration = bonusAcceleration; Debug.Log("PowerUp Started. Acceleration is now " + Acceleration().ToString()); };
             accelerationBoostTimer.OnTimerStop += () => { _bonusAcceleration = 0; Debug.Log("PowerUp Over. Acceleration is now " + Acceleration().ToString()); };
         accelerationBoostTimer.Start();
@@ -29,7 +35,7 @@ public class StatBlock : MonoBehaviour
     {
         if (penaltyAcceleration > 0)
             Debug.LogWarning("Value supplied to LowerAcceleration(float, float) is non-negative, which will result in an increase in acceleration.");
-        accelerationPenaltyTimer = new CountdownTimer(duration);
+        accelerationPenaltyTimer.Reset(duration);
         accelerationPenaltyTimer.OnTimerStart += () => _penaltyAcceleration = penaltyAcceleration;
         accelerationPenaltyTimer.OnTimerStop -= () => _penaltyAcceleration = 0;
         accelerationPenaltyTimer.Start();
