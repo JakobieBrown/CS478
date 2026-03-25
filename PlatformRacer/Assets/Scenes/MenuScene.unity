@@ -1440,7 +1440,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 377709304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24450dc163fd83d4eb5763a0e4d3101a, type: 3}
+  m_Script: {fileID: 11500000, guid: 96b01d6587b154d4a9e5bda4d2d337c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIController
   nameInput: {fileID: 516806907}
