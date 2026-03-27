@@ -63,6 +63,7 @@ public class InputReader : ScriptableObject, IPlayerActions
 
 
     }
+    public event Action OnJumpPerformed;
 
     public void OnJump(InputAction.CallbackContext context)
     {
@@ -70,6 +71,7 @@ public class InputReader : ScriptableObject, IPlayerActions
         {
             jumpTriggered = true;
             jumpHeld = true;
+            OnJumpPerformed?.Invoke();
         }
         else
         {

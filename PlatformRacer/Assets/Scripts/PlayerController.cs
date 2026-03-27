@@ -51,6 +51,8 @@ public class PlayerController : NetworkBehaviour
     public bool onGround;
     public float raycastDistance = 0.1f;
     public LayerMask groundLayer;
+    public AudioClip jumpSound;
+    private AudioSource audioSource;
 
     ClientNetworkTransform clientNetworkTransform;
 
@@ -133,6 +135,7 @@ public class PlayerController : NetworkBehaviour
     //}
     public override void OnNetworkSpawn()
     {
+        Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
         if (!IsOwner)
         {
             playerAudioListener.enabled = false;
@@ -141,7 +144,8 @@ public class PlayerController : NetworkBehaviour
         }
         playerAudioListener.enabled = true;
         playerCamera.Priority = 100;
-        
+        audioSource = GetComponentInChildren<AudioSource>();
+        input.OnJumpPerformed += PlayJumpSound;
     }
 
     private void Update()
@@ -329,7 +333,15 @@ public class PlayerController : NetworkBehaviour
         //Vector2 dragForce = -0.5f * dragCoefficient * rb.linearVelocity.magnitude * rb.linearVelocity;
         //rb.AddForce(dragForce);
     }
-
+    private void PlayJumpSound()
+    {
+        if (audioSource != null && jumpSound != null && onGround) // So it doesn't spam the sound effect
+            audioSource.PlayOneShot(jumpSound);
+    }
+    private void OnDestroy() // to unsubscribe from the event cleanly when the object is destroyed
+    {                        // AI said this is needed - Asked Jakobi if it actually is needed
+        input.OnJumpPerformed -= PlayJumpSound;
+    }
     public void Jump(InputPayload input)
     {
         stateMachine.Jump(input);
