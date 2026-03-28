@@ -1,7 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
 
+[System.Serializable]
+public class ServerSettings
+{
+    public string playerName;
+    public bool isPvp;
+    public string privacy;
+}
 public class UIController : MonoBehaviour
 {
     public TMP_InputField nameInput;
@@ -12,10 +20,29 @@ public class UIController : MonoBehaviour
     public Toggle fofToggle;
 
     public Button submitButton;
+    private string filePath;
 
     void Start()
     {
+        filePath = Application.persistentDataPath + "/serversettings.json";
         submitButton.onClick.AddListener(OnSubmit);
+    }
+
+    void SaveSettings(ServerSettings settings)
+    {
+        string json = JsonUtility.ToJson(settings, true);
+        File.WriteAllText(filePath, json);
+        Debug.Log("Saved to " + filePath);
+    }
+    
+    void LoadSettings()
+    {
+        string json = File.ReadAllText(filePath);
+        ServerSettings settings = JsonUtility.FromJson<ServerSettings>(json);
+        Debug.Log("Name : " + settings.playerName);
+        Debug.Log("Pvp  : " + settings.isPvp);
+        Debug.Log("Privacy : " + settings.privacy);
+            
     }
 
     void OnSubmit()
@@ -32,8 +59,16 @@ public class UIController : MonoBehaviour
         else if (fofToggle.isOn)
             privacy = "Friends of friends";
 
-        Debug.Log("Name: " + name);
-        Debug.Log("PvP: " + isPvP);
-        Debug.Log("Privacy: " + privacy);
+
+        ServerSettings settings = new ServerSettings()
+        {
+            playerName = name,
+            isPvp = isPvP,
+            privacy = privacy
+        };
+
+        SaveSettings(settings);
+        LoadSettings();
+
     }
 }
