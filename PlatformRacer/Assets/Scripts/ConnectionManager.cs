@@ -9,6 +9,7 @@ public class ConnectionManager : MonoBehaviour
     Button clientButton;
     Button serverButton;
     Label statusLabel;
+    public RaceCountdown raceCountdown;
 
     void OnEnable()
     {
@@ -43,11 +44,24 @@ public class ConnectionManager : MonoBehaviour
         serverButton.clicked -= OnServerButtonClicked;
     }
 
-    void OnHostButtonClicked() => NetworkManager.Singleton.StartHost();
+    void OnHostButtonClicked()
+    {
+        NetworkManager.Singleton.StartHost();
+        raceCountdown.BeginCountdown();
+    }
 
-    void OnClientButtonClicked() => NetworkManager.Singleton.StartClient();
 
-    void OnServerButtonClicked() => NetworkManager.Singleton.StartServer();
+    void OnClientButtonClicked()
+    {
+        NetworkManager.Singleton.StartClient();
+        raceCountdown.BeginCountdown();
+    }
+
+    void OnServerButtonClicked()
+    {
+        NetworkManager.Singleton.StartServer();
+        raceCountdown.BeginCountdown();
+    }
 
     // Disclaimer: This is not the recommended way to create and stylize the UI elements, it is only utilized for the sake of simplicity.
     // The recommended way is to use UXML and USS. Please see this link for more information: https://docs.unity3d.com/Manual/UIE-USS.html
