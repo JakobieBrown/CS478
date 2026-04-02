@@ -25,6 +25,7 @@ public class UIController : MonoBehaviour
     void Start()
     {
         filePath = Application.persistentDataPath + "/serversettings.json";
+        Debug.Log(Application.persistentDataPath);
         submitButton.onClick.AddListener(OnSubmit);
     }
 

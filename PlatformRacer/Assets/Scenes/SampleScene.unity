@@ -25334,6 +25334,7 @@ MonoBehaviour:
   countdownText: {fileID: 1655761942}
   countdownBeep: {fileID: 8300000, guid: 07981d328b4b85341a84c27273bd1ea8, type: 3}
   goSound: {fileID: 8300000, guid: e5c33c6e24bad0a479ddec3a27de2271, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: 983f02ca2ba3caf4ab1e4424101785e4, type: 3}
 --- !u!4 &1088116356
 Transform:
   m_ObjectHideFlags: 0
