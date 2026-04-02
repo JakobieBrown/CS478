@@ -90,6 +90,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] public float dragCoefficient = 0.5f;
     [SerializeField] private float raycastOffsetX;
 
+    public Vector2 DragForce() => new Vector2(rb.linearVelocityX, 0) * -dragCoefficient;
+
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -153,7 +156,7 @@ public class PlayerController : NetworkBehaviour
         networkTimer.Update(Time.deltaTime);
         Debug.Log(stateMachine.current.ToString());
         CheckGround();
-        stateMachine.OnUpdate();
+        //stateMachine.OnUpdate();
         reconciliationCooldown.Tick(Time.deltaTime);
         //extrapolationCooldown.Tick(Time.deltaTime);
         //Extrapolate();
@@ -254,6 +257,9 @@ public class PlayerController : NetworkBehaviour
         StatePayload statePayload = ProcessMovement(inputPayload);
         clientStateBuffer.Add(statePayload, bufferIndex);
 
+        stateMachine.OnUpdate();
+        stateMachine.OnFixedUpdate();
+
         HandleServerReconciliation();
     }
 
@@ -338,9 +344,10 @@ public class PlayerController : NetworkBehaviour
         if (audioSource != null && jumpSound != null && onGround) // So it doesn't spam the sound effect
             audioSource.PlayOneShot(jumpSound);
     }
-    private void OnDestroy() // to unsubscribe from the event cleanly when the object is destroyed
-    {                        // AI said this is needed - Asked Jakobi if it actually is needed
+    public override void OnDestroy() // Added override keyword
+    {                      
         input.OnJumpPerformed -= PlayJumpSound;
+        base.OnDestroy(); // call the inherited OnDestroy
     }
     public void Jump(InputPayload input)
     {

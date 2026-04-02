@@ -127,8 +127,7 @@ namespace StateMachine.Player
 
         public override void Move(Vector2 inputVector)
         {
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -187,8 +186,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void Jump(InputPayload input)
@@ -212,9 +210,8 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.linearVelocityY = controller.StatBlock.JumpForce();
-            //controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.acceleration, 0));
-            //Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            //controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -250,9 +247,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            dragForce.y = 0;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -289,9 +284,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            dragForce.y = -9.8f;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -331,8 +324,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
