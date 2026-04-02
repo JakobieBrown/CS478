@@ -57,6 +57,8 @@ namespace StateMachine.Player
                     return new PlayerJumpFall(machine, controller);
                 case "PlayerJumpLand":
                     return new PlayerJumpLand(machine, controller);
+                case "PlayerStop":
+                    return new PlayerStop(machine, controller);
                 default:
                     return new PlayerDefault(machine, controller);
                 }
@@ -154,7 +156,7 @@ namespace StateMachine.Player
             {
                 machine.ChangeStates("PlayerJumpLiftOff");
             }
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
         }
     }
     public class PlayerRun : AbstractPlayerState
@@ -179,7 +181,7 @@ namespace StateMachine.Player
             }
             if (controller.input.jumpTriggered)
                 machine.ChangeStates("PlayerJumpLiftOff");
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
         }
 
         public override void Move(Vector2 inputVector)
@@ -264,7 +266,7 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.rb.linearVelocityY <= 0)
                 machine.ChangeStates("PlayerJumpFall");
         }
@@ -304,7 +306,7 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.onGround)
                 machine.ChangeStates("PlayerJumpLand");
         }
@@ -344,11 +346,48 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.input.Move.x == 0)
                 machine.ChangeStates("PlayerIdle");
             else
                 machine.ChangeStates("PlayerRun");
+        }
+    }
+
+
+    public class PlayerStop : AbstractPlayerState
+    {
+        public PlayerStop(AbstractStateMachine machine, PlayerController controller) : base(machine, controller)
+        {
+        }
+
+        public override void Jump(InputPayload input)
+        {
+
+        }
+
+        public override void Move(Vector2 inputVector)
+        {
+            controller.rb.AddForce(controller.DragForce());
+        }
+
+        public override void OnEnter()
+        {
+            Debug.Log("Player Finished Race");
+        }
+
+        public override void OnExit()
+        {
+
+        }
+
+        public override void OnFixedUpdate()
+        {
+
+        }
+
+        public override void OnUpdate()
+        {
         }
     }
 }

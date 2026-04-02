@@ -1677,6 +1677,7 @@ MonoBehaviour:
   startRaceButton: {fileID: 1161044209}
   selectedColor: {r: 0.2, g: 0.6, b: 1, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  raceInfo: {fileID: 0}
 --- !u!4 &581910339
 Transform:
   m_ObjectHideFlags: 0
