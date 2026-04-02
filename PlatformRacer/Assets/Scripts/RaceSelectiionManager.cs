@@ -1,6 +1,9 @@
+using Steamworks;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Windows.Speech;
 
 public class RaceSelectiionManager : MonoBehaviour
 {
@@ -94,10 +97,23 @@ public class RaceSelectiionManager : MonoBehaviour
     void StartRace()
     {
         PlayerPrefs.SetString("SelectedMap", selectedMap);
-        PlayerPrefs.SetString("SelectedDistance", selectedDistance);
+        PlayerPrefs.SetInt("SelectedDistance", ParseDistance(selectedDistance));
         PlayerPrefs.Save();
 
         SceneManager.LoadScene(selectedMap);
+    }
+
+    public int ParseDistance(string input)
+    {
+        var parts = input.Split(' ');
+        int value = int.Parse(parts[0]);
+        string unit = parts[1];
+        return unit switch
+        {
+            "M" => value,
+            "KM" => value * 1000,
+            _ => value
+        };
     }
 
 }

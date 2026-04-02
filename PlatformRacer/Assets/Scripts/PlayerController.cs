@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Utilities;
 using System;
 using StateMachine.Player;
+using UnityEditor.Build.Content;
 
 public struct InputPayload : INetworkSerializable
 {
@@ -15,7 +16,6 @@ public struct InputPayload : INetworkSerializable
     public bool JumpHeld;
     public DateTime timestamp;
     public ulong networkingObjectId;
-    
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref tick);
@@ -87,6 +87,8 @@ public class PlayerController : NetworkBehaviour
 
     CountdownTimer reconciliationCooldown;
 
+
+
     [SerializeField] public float dragCoefficient = 0.5f;
     [SerializeField] private float raycastOffsetX;
 
@@ -107,6 +109,7 @@ public class PlayerController : NetworkBehaviour
         clientInputBuffer = new CircularBuffer<InputPayload>(k_bufferSize);
         serverStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         serverInputQueue = new Queue<InputPayload>();
+
 
         reconciliationCooldown = new CountdownTimer(reconciliationCooldownTime);
         //extrapolationCooldown = new CountdownTimer(extrapolationLimit);
@@ -138,7 +141,7 @@ public class PlayerController : NetworkBehaviour
     //}
     public override void OnNetworkSpawn()
     {
-        Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
+        //Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
         if (!IsOwner)
         {
             playerAudioListener.enabled = false;
@@ -154,7 +157,7 @@ public class PlayerController : NetworkBehaviour
     private void Update()
     {
         networkTimer.Update(Time.deltaTime);
-        Debug.Log(stateMachine.current.ToString());
+        //Debug.Log(stateMachine.current.ToString());
         CheckGround();
         //stateMachine.OnUpdate();
         reconciliationCooldown.Tick(Time.deltaTime);
@@ -259,6 +262,11 @@ public class PlayerController : NetworkBehaviour
 
         stateMachine.OnUpdate();
         stateMachine.OnFixedUpdate();
+
+        if (transform.position.x >= PlayerPrefs.GetInt("SelectedDistance"))
+        {
+            stateMachine.ChangeStates("PlayerStop");
+        }
 
         HandleServerReconciliation();
     }
@@ -380,9 +388,9 @@ public class PlayerController : NetworkBehaviour
         Vector2 centerPos = transform.position;
         Vector2 leftPos = new Vector2(transform.position.x - raycastOffsetX, transform.position.y);
         Vector2 rightPos = new Vector2(transform.position.x + raycastOffsetX, transform.position.y);
-        Debug.DrawRay(centerPos, Vector2.down * raycastDistance, Color.red);
-        Debug.DrawRay(leftPos, Vector2.down * raycastDistance, Color.red);
-        Debug.DrawRay(rightPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(centerPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(leftPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(rightPos, Vector2.down * raycastDistance, Color.red);
     }
 }
 
