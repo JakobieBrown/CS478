@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Utilities;
 using System;
 using StateMachine.Player;
+using UnityEditor.Build.Content;
 
 public struct InputPayload : INetworkSerializable
 {
@@ -15,7 +16,6 @@ public struct InputPayload : INetworkSerializable
     public bool JumpHeld;
     public DateTime timestamp;
     public ulong networkingObjectId;
-    
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref tick);
@@ -87,8 +87,13 @@ public class PlayerController : NetworkBehaviour
 
     CountdownTimer reconciliationCooldown;
 
+
+
     [SerializeField] public float dragCoefficient = 0.5f;
     [SerializeField] private float raycastOffsetX;
+
+    public Vector2 DragForce() => new Vector2(rb.linearVelocityX, 0) * -dragCoefficient;
+
 
     private void Awake()
     {
@@ -104,6 +109,7 @@ public class PlayerController : NetworkBehaviour
         clientInputBuffer = new CircularBuffer<InputPayload>(k_bufferSize);
         serverStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         serverInputQueue = new Queue<InputPayload>();
+
 
         reconciliationCooldown = new CountdownTimer(reconciliationCooldownTime);
         //extrapolationCooldown = new CountdownTimer(extrapolationLimit);
@@ -135,7 +141,7 @@ public class PlayerController : NetworkBehaviour
     //}
     public override void OnNetworkSpawn()
     {
-        Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
+        //Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
         if (!IsOwner)
         {
             playerAudioListener.enabled = false;
@@ -151,9 +157,9 @@ public class PlayerController : NetworkBehaviour
     private void Update()
     {
         networkTimer.Update(Time.deltaTime);
-        Debug.Log(stateMachine.current.ToString());
+        //Debug.Log(stateMachine.current.ToString());
         CheckGround();
-        stateMachine.OnUpdate();
+        //stateMachine.OnUpdate();
         reconciliationCooldown.Tick(Time.deltaTime);
         //extrapolationCooldown.Tick(Time.deltaTime);
         //Extrapolate();
@@ -254,6 +260,14 @@ public class PlayerController : NetworkBehaviour
         StatePayload statePayload = ProcessMovement(inputPayload);
         clientStateBuffer.Add(statePayload, bufferIndex);
 
+        stateMachine.OnUpdate();
+        stateMachine.OnFixedUpdate();
+
+        if (transform.position.x >= PlayerPrefs.GetInt("SelectedDistance"))
+        {
+            stateMachine.ChangeStates("PlayerStop");
+        }
+
         HandleServerReconciliation();
     }
 
@@ -338,9 +352,10 @@ public class PlayerController : NetworkBehaviour
         if (audioSource != null && jumpSound != null && onGround) // So it doesn't spam the sound effect
             audioSource.PlayOneShot(jumpSound);
     }
-    private void OnDestroy() // to unsubscribe from the event cleanly when the object is destroyed
-    {                        // AI said this is needed - Asked Jakobi if it actually is needed
+    public override void OnDestroy() // Added override keyword
+    {                      
         input.OnJumpPerformed -= PlayJumpSound;
+        base.OnDestroy(); // call the inherited OnDestroy
     }
     public void Jump(InputPayload input)
     {
@@ -373,9 +388,9 @@ public class PlayerController : NetworkBehaviour
         Vector2 centerPos = transform.position;
         Vector2 leftPos = new Vector2(transform.position.x - raycastOffsetX, transform.position.y);
         Vector2 rightPos = new Vector2(transform.position.x + raycastOffsetX, transform.position.y);
-        Debug.DrawRay(centerPos, Vector2.down * raycastDistance, Color.red);
-        Debug.DrawRay(leftPos, Vector2.down * raycastDistance, Color.red);
-        Debug.DrawRay(rightPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(centerPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(leftPos, Vector2.down * raycastDistance, Color.red);
+        //Debug.DrawRay(rightPos, Vector2.down * raycastDistance, Color.red);
     }
 }
 

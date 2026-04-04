@@ -57,6 +57,8 @@ namespace StateMachine.Player
                     return new PlayerJumpFall(machine, controller);
                 case "PlayerJumpLand":
                     return new PlayerJumpLand(machine, controller);
+                case "PlayerStop":
+                    return new PlayerStop(machine, controller);
                 default:
                     return new PlayerDefault(machine, controller);
                 }
@@ -127,8 +129,7 @@ namespace StateMachine.Player
 
         public override void Move(Vector2 inputVector)
         {
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -155,7 +156,7 @@ namespace StateMachine.Player
             {
                 machine.ChangeStates("PlayerJumpLiftOff");
             }
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
         }
     }
     public class PlayerRun : AbstractPlayerState
@@ -180,15 +181,14 @@ namespace StateMachine.Player
             }
             if (controller.input.jumpTriggered)
                 machine.ChangeStates("PlayerJumpLiftOff");
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
         }
 
         public override void Move(Vector2 inputVector)
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void Jump(InputPayload input)
@@ -212,9 +212,8 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.linearVelocityY = controller.StatBlock.JumpForce();
-            //controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.acceleration, 0));
-            //Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            //controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -250,9 +249,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            dragForce.y = 0;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -269,7 +266,7 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.rb.linearVelocityY <= 0)
                 machine.ChangeStates("PlayerJumpFall");
         }
@@ -289,9 +286,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            dragForce.y = -9.8f;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -311,7 +306,7 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.onGround)
                 machine.ChangeStates("PlayerJumpLand");
         }
@@ -331,8 +326,7 @@ namespace StateMachine.Player
         {
             int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
             controller.rb.AddForce(new Vector2(horizontalInput * controller.rb.mass * controller.StatBlock.Acceleration(), 0));
-            Vector2 dragForce = -0.5f * controller.dragCoefficient * controller.rb.linearVelocity.magnitude * controller.rb.linearVelocity;
-            controller.rb.AddForce(dragForce);
+            controller.rb.AddForce(controller.DragForce());
         }
 
         public override void OnEnter()
@@ -352,11 +346,48 @@ namespace StateMachine.Player
 
         public override void OnUpdate()
         {
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
             if (controller.input.Move.x == 0)
                 machine.ChangeStates("PlayerIdle");
             else
                 machine.ChangeStates("PlayerRun");
+        }
+    }
+
+
+    public class PlayerStop : AbstractPlayerState
+    {
+        public PlayerStop(AbstractStateMachine machine, PlayerController controller) : base(machine, controller)
+        {
+        }
+
+        public override void Jump(InputPayload input)
+        {
+
+        }
+
+        public override void Move(Vector2 inputVector)
+        {
+            controller.rb.AddForce(controller.DragForce());
+        }
+
+        public override void OnEnter()
+        {
+            Debug.Log("Player Finished Race");
+        }
+
+        public override void OnExit()
+        {
+
+        }
+
+        public override void OnFixedUpdate()
+        {
+
+        }
+
+        public override void OnUpdate()
+        {
         }
     }
 }
