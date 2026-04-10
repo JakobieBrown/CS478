@@ -1,2 +1,18 @@
 fileFormatVersion: 2
 guid: 355c133329a12434fb2249942c1fbac3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - input: {instanceID: 0}
+  - rb: {instanceID: 0}
+  - StatBlock: {instanceID: 0}
+  - jumpSound: {instanceID: 0}
+  - finishSound: {instanceID: 0}
+  - playerCamera: {instanceID: 0}
+  - playerAudioListener: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
