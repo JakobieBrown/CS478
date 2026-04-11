@@ -1,6 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
+
+
+[System.Serializable]
+public class ProfileSettings
+{
+    public string playerName;
+    public int body;
+    public int skin;
+    public int hairStyle;
+    public int hairColor;
+}
 
 public class CharacterCustomizer : MonoBehaviour
 {
@@ -10,15 +22,54 @@ public class CharacterCustomizer : MonoBehaviour
     public Toggle[] hairColorToggles;
 
     public TMP_InputField nameInput;
-    
+
+    private string filePath;
+
+
+    void Start()
+    {
+        filePath = Application.persistentDataPath + "/playerprofile.json";
+    }
+
+    void LoadSettings()
+    {
+        string json = File.ReadAllText(filePath);
+        ProfileSettings settings = JsonUtility.FromJson<ProfileSettings>(json);
+        Debug.Log("Name : " + settings.playerName);
+        Debug.Log("Body  : " + settings.body);
+        Debug.Log("Skin : " + settings.skin);
+        Debug.Log("Hair Style : " + settings.hairStyle);
+        Debug.Log("Hair Color : " + settings.hairColor);
+    }
+
+    void SaveProfile(ProfileSettings settings)
+    {
+        string json = JsonUtility.ToJson(settings, true);
+        File.WriteAllText(filePath, json);
+        Debug.Log("Saved to " + filePath);
+
+        if (ProfileManager.Instance != null)
+        {
+            ProfileManager.Instance.RefreshProfile();
+        }
+    }
 
     public void OnSubmit()
     {
-        string body = GetSelectedToggle(bodyStyleToggles);
-        string skin = GetSelectedToggle(skinToneToggles);
-        string hairStyle = GetSelectedToggle(hairStyleToggles);
-        string hairColor = GetSelectedToggle(hairColorToggles);
+        int body = GetSelectedToggle(bodyStyleToggles);
+        int skin = GetSelectedToggle(skinToneToggles);
+        int hairStyle = GetSelectedToggle(hairStyleToggles);
+        int hairColor = GetSelectedToggle(hairColorToggles);
         string playerName = nameInput.text;
+
+        ProfileSettings settings = new ProfileSettings()
+        {
+            playerName = playerName,
+            body = body,
+            hairStyle = hairStyle,
+            hairColor = hairColor,
+            skin = skin
+        };
 
         string result =
             "Name: " + playerName + "\n" +
@@ -28,16 +79,19 @@ public class CharacterCustomizer : MonoBehaviour
             "Hair Color: " + hairColor;
 
         Debug.Log(result);
+
+        SaveProfile(settings);
+        LoadSettings();
     }
 
-    public string GetSelectedToggle(Toggle[] toggles)
+    public int GetSelectedToggle(Toggle[] toggles)
     {
-        foreach (Toggle t in toggles)
+        for (int i = 0; i < toggles.Length; i++)
         {
-            if (t.isOn)
-                return t.name;
+            if (toggles[i].isOn)
+                return i;
         }
-        return "None";
+        return 0;
     }
 
 

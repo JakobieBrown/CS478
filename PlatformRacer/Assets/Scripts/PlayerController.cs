@@ -52,6 +52,7 @@ public class PlayerController : NetworkBehaviour
     public float raycastDistance = 0.1f;
     public LayerMask groundLayer;
     public AudioClip jumpSound;
+    public AudioClip finishSound;
     private AudioSource audioSource;
 
     ClientNetworkTransform clientNetworkTransform;
@@ -141,6 +142,7 @@ public class PlayerController : NetworkBehaviour
     //}
     public override void OnNetworkSpawn()
     {
+        Debug.Log("OnNetworkSpawn called, IsOwner: " + IsOwner);
         //Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
         if (!IsOwner)
         {
@@ -148,10 +150,16 @@ public class PlayerController : NetworkBehaviour
             playerCamera.Priority = 0;
             return;
         }
+        Debug.Log("Step 2: Past IsOwner check");
         playerAudioListener.enabled = true;
+        Debug.Log("Step 3: Past playerAudioListener");
         playerCamera.Priority = 100;
+        Debug.Log("Step 4: Past playerCameraPriority check");
         audioSource = GetComponentInChildren<AudioSource>();
+        Debug.Log("Step 5: Past audioSource check");
         input.OnJumpPerformed += PlayJumpSound;
+        Debug.Log("Step 6: Past playjumpsound");
+
     }
 
     private void Update()
@@ -236,6 +244,16 @@ public class PlayerController : NetworkBehaviour
         lastServerState = statePayload;
     }
 
+    private bool hasFinished = false;
+
+    private void PlayFinishSound()
+    {
+        if (audioSource != null && finishSound != null)
+        {
+            audioSource.PlayOneShot(finishSound);
+        }
+    }
+
     void HandleClientTick()
     {
         if (!IsClient || !IsOwner) return;
@@ -263,9 +281,12 @@ public class PlayerController : NetworkBehaviour
         stateMachine.OnUpdate();
         stateMachine.OnFixedUpdate();
 
-        if (transform.position.x >= PlayerPrefs.GetInt("SelectedDistance"))
+
+        if (transform.position.x >= PlayerPrefs.GetInt("SelectedDistance") && !hasFinished)
         {
+            hasFinished = true;
             stateMachine.ChangeStates("PlayerStop");
+            PlayFinishSound();
         }
 
         HandleServerReconciliation();
@@ -350,6 +371,7 @@ public class PlayerController : NetworkBehaviour
     private void PlayJumpSound()
     {
         if (audioSource != null && jumpSound != null && onGround) // So it doesn't spam the sound effect
+            Debug.Log("PlayJumpSoundCalled");
             audioSource.PlayOneShot(jumpSound);
     }
     public override void OnDestroy() // Added override keyword
