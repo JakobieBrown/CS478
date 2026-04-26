@@ -54,6 +54,7 @@ public class PlayerController : NetworkBehaviour
     public AudioClip jumpSound;
     public AudioClip finishSound;
     private AudioSource audioSource;
+    public RaceTimer raceTimer;
 
     ClientNetworkTransform clientNetworkTransform;
 
@@ -159,6 +160,7 @@ public class PlayerController : NetworkBehaviour
         Debug.Log("Step 5: Past audioSource check");
         input.OnJumpPerformed += PlayJumpSound;
         Debug.Log("Step 6: Past playjumpsound");
+        raceTimer = FindFirstObjectByType<RaceTimer>(); // automatically finds it
 
     }
 
@@ -287,6 +289,7 @@ public class PlayerController : NetworkBehaviour
             hasFinished = true;
             stateMachine.ChangeStates("PlayerStop");
             PlayFinishSound();
+            raceTimer.StopTimer();
         }
 
         HandleServerReconciliation();

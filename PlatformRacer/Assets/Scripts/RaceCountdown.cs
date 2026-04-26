@@ -10,6 +10,7 @@ public class RaceCountdown : MonoBehaviour
     public AudioClip backgroundMusic;
     private AudioSource audioSource;
     private bool hasStarted = false;
+    public RaceTimer raceTimer;
 
     void Start()
     {
@@ -49,5 +50,10 @@ public class RaceCountdown : MonoBehaviour
         audioSource.clip = backgroundMusic;
         audioSource.loop = true;
         audioSource.Play();
+
+        if (raceTimer != null)
+        {
+            raceTimer.StartTimer();
+        }
     }
 }
