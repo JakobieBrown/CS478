@@ -11,6 +11,7 @@ public class RaceCountdown : MonoBehaviour
     private AudioSource audioSource;
     private bool hasStarted = false;
     public RaceTimer raceTimer;
+    public static bool RaceStarted { get; private set; } = false;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class RaceCountdown : MonoBehaviour
         Debug.Log("BeginCountdown called, hasStarted: " + hasStarted);
         if (hasStarted) return;
         hasStarted = true;
+        RaceStarted = false;
         StartCoroutine(StartCountdown());
     }
 
@@ -44,6 +46,8 @@ public class RaceCountdown : MonoBehaviour
         countdownText.text = "GO!";
         audioSource.PlayOneShot(goSound);
         yield return new WaitForSeconds(1f);
+
+        RaceStarted = true;
 
         countdownText.gameObject.SetActive(false);
 

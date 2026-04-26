@@ -42,6 +42,7 @@ public struct StatePayload : INetworkSerializable
         serializer.SerializeValue(ref networkObjectId);
     }
 }
+
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField]
@@ -55,15 +56,17 @@ public class PlayerController : NetworkBehaviour
     public AudioClip finishSound;
     private AudioSource audioSource;
     public RaceTimer raceTimer;
+    public ResultsManager resultsManager;
+
+    private Action jumpSoundAction;
 
     ClientNetworkTransform clientNetworkTransform;
-
     private PlayerStateMachine stateMachine;
 
     [SerializeField] CinemachineVirtualCamera playerCamera;
     [SerializeField] AudioListener playerAudioListener;
 
-    // net code general 
+    // netcode general
     NetworkTimer networkTimer;
     const float k_serverTickRate = 60f;
     const int k_bufferSize = 1024;
@@ -78,24 +81,15 @@ public class PlayerController : NetworkBehaviour
     CircularBuffer<StatePayload> serverStateBuffer;
     Queue<InputPayload> serverInputQueue;
 
-
     [SerializeField] float reconciliationThreshold = 10f;
     [SerializeField] float reconciliationCooldownTime = 1f;
-    //[SerializeField] float extrapolationLimit = 0.5f;
-    //[SerializeField] float extrapolationMultiplier = 1.2f;
-
-    //StatePayload extrapolationState;
-    //CountdownTimer extrapolationCooldown;
 
     CountdownTimer reconciliationCooldown;
-
-
 
     [SerializeField] public float dragCoefficient = 0.5f;
     [SerializeField] private float raycastOffsetX;
 
     public Vector2 DragForce() => new Vector2(rb.linearVelocityX, 0) * -dragCoefficient;
-
 
     private void Awake()
     {
@@ -112,39 +106,12 @@ public class PlayerController : NetworkBehaviour
         serverStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         serverInputQueue = new Queue<InputPayload>();
 
-
         reconciliationCooldown = new CountdownTimer(reconciliationCooldownTime);
-        //extrapolationCooldown = new CountdownTimer(extrapolationLimit);
-
-        //reconciliationCooldown.OnTimerStart += () => {
-        //    extrapolationCooldown.Stop();
-        //};
-
-
-        //extrapolationCooldown.OnTimerStart += () =>
-        //{
-        //    reconciliationCooldown.Stop();
-        //    SwitchAuthorityMode(Authority.Server);
-        //};
-
-        //extrapolationCooldown.OnTimerStop += () =>
-        //{
-        //    extrapolationState = default;
-        //    SwitchAuthorityMode(Authority.Client);
-        //};
     }
 
-    //void SwitchAuthorityMode(Authority authority)
-    //{
-    //    clientNetworkTransform.authorityMode = authority;
-    //    bool shouldSync = authority == Authority.Client;
-    //    clientNetworkTransform.SyncPositionX = shouldSync;
-    //    clientNetworkTransform.SyncPositionY = shouldSync;
-    //}
     public override void OnNetworkSpawn()
     {
         Debug.Log("OnNetworkSpawn called, IsOwner: " + IsOwner);
-        //Debug.Log("IsOwner: " + IsOwner + " | Object: " + gameObject.name);
         if (!IsOwner)
         {
             playerAudioListener.enabled = false;
@@ -158,22 +125,19 @@ public class PlayerController : NetworkBehaviour
         Debug.Log("Step 4: Past playerCameraPriority check");
         audioSource = GetComponentInChildren<AudioSource>();
         Debug.Log("Step 5: Past audioSource check");
-        input.OnJumpPerformed += PlayJumpSound;
-        Debug.Log("Step 6: Past playjumpsound");
-        raceTimer = FindFirstObjectByType<RaceTimer>(); // automatically finds it
 
+        jumpSoundAction = () => { if (RaceCountdown.RaceStarted) PlayJumpSound(); };
+        input.OnJumpPerformed += jumpSoundAction;
+        Debug.Log("Step 6: Past playjumpsound");
+
+        raceTimer = FindFirstObjectByType<RaceTimer>();
     }
 
     private void Update()
     {
         networkTimer.Update(Time.deltaTime);
-        //Debug.Log(stateMachine.current.ToString());
         CheckGround();
-        //stateMachine.OnUpdate();
         reconciliationCooldown.Tick(Time.deltaTime);
-        //extrapolationCooldown.Tick(Time.deltaTime);
-        //Extrapolate();
-
     }
 
     private void FixedUpdate()
@@ -183,8 +147,8 @@ public class PlayerController : NetworkBehaviour
             HandleClientTick();
             HandleServerTick();
         }
-        //Extrapolate();
     }
+
     void HandleServerTick()
     {
         if (!IsServer) return;
@@ -200,44 +164,7 @@ public class PlayerController : NetworkBehaviour
         }
         if (bufferIndex == -1) return;
         SendToClientRPC(serverStateBuffer.Get(bufferIndex));
-        //HandleExtrapolation(serverStateBuffer.Get(bufferIndex), CalculateLatencyInMillis(inputPayload));
     }
-
-    //void Extrapolate()
-    //{
-    //    if (IsServer && extrapolationCooldown.IsRunning)
-    //    {
-    //        transform.position += (Vector3)extrapolationState.position;
-    //    }
-    //}
-    //void HandleExtrapolation(StatePayload latest, float latency)
-    //{
-    //    if (ShouldExtrapolate(latency))
-    //    {
-    //        if (extrapolationState.position != default)
-    //        {
-    //            latest = extrapolationState;
-    //        }
-    //        var posAdjustment = latest.velocity * (1 + latency * extrapolationMultiplier);
-    //        extrapolationState.position = posAdjustment;
-    //        extrapolationState.velocity = latest.velocity;
-    //        extrapolationCooldown.Start();
-    //    }
-    //    else
-    //    {
-    //        extrapolationCooldown.Stop();
-    //    }
-    //}
-
-    //private bool ShouldExtrapolate(float latency)
-    //{
-    //    return latency < extrapolationLimit && latency > Time.fixedDeltaTime;
-    //}
-
-    //static float CalculateLatencyInMillis(InputPayload inputPayload)
-    //{
-    //    return (DateTime.Now - inputPayload.timestamp).Milliseconds/1000f;
-    //}
 
     [ClientRpc]
     void SendToClientRPC(StatePayload statePayload)
@@ -259,6 +186,7 @@ public class PlayerController : NetworkBehaviour
     void HandleClientTick()
     {
         if (!IsClient || !IsOwner) return;
+        if (!RaceCountdown.RaceStarted) return;
 
         var currentTick = networkTimer.CurrentTick;
         var bufferIndex = currentTick % k_bufferSize;
@@ -283,13 +211,16 @@ public class PlayerController : NetworkBehaviour
         stateMachine.OnUpdate();
         stateMachine.OnFixedUpdate();
 
-
         if (transform.position.x >= PlayerPrefs.GetInt("SelectedDistance") && !hasFinished)
         {
             hasFinished = true;
             stateMachine.ChangeStates("PlayerStop");
             PlayFinishSound();
             raceTimer.StopTimer();
+
+            resultsManager = FindFirstObjectByType<ResultsManager>();
+            float finalTime = raceTimer.GetTime();
+            resultsManager.ShowResults(finalTime);
         }
 
         HandleServerReconciliation();
@@ -300,8 +231,9 @@ public class PlayerController : NetworkBehaviour
         bool isServerState = !lastServerState.Equals(default);
         bool isLastStateUndefinedOrDifferent = LastProcessedState.Equals(default)
                                                 || !LastProcessedState.Equals(lastServerState);
-        return isServerState && isLastStateUndefinedOrDifferent && !reconciliationCooldown.IsRunning;// && !extrapolationCooldown.IsRunning;
+        return isServerState && isLastStateUndefinedOrDifferent && !reconciliationCooldown.IsRunning;
     }
+
     void HandleServerReconciliation()
     {
         if (!ShouldReconcile()) return;
@@ -309,9 +241,8 @@ public class PlayerController : NetworkBehaviour
         float positionError;
         int bufferIndex;
         StatePayload rewindState = default;
-        
-        bufferIndex = lastServerState.tick % k_bufferSize;
 
+        bufferIndex = lastServerState.tick % k_bufferSize;
         if (bufferIndex - 1 < 0) return;
 
         rewindState = IsHost ? serverStateBuffer.Get(bufferIndex - 1) : lastServerState;
@@ -335,7 +266,6 @@ public class PlayerController : NetworkBehaviour
         clientStateBuffer.Add(rewindState, rewindState.tick);
 
         int tickToReplay = lastServerState.tick;
-
         while (tickToReplay < networkTimer.CurrentTick)
         {
             int bufferIndex = tickToReplay % k_bufferSize;
@@ -356,56 +286,51 @@ public class PlayerController : NetworkBehaviour
         Move(input.inputVector);
         Jump(input);
 
-        return new StatePayload() { 
+        return new StatePayload()
+        {
             tick = input.tick,
             position = transform.position,
             velocity = rb.linearVelocity,
             networkObjectId = input.networkingObjectId,
         };
     }
+
     public void Move(Vector2 inputVector)
     {
         stateMachine.Move(inputVector);
-        //int horizontalInput = inputVector.x > 0 ? 1 : inputVector.x < 0 ? -1 : 0; // 1 if x > 0, -1 if x < 0, else 0
-        //rb.AddForce(new Vector2(horizontalInput * rb.mass * acceleration, 0));
-        //Vector2 dragForce = -0.5f * dragCoefficient * rb.linearVelocity.magnitude * rb.linearVelocity;
-        //rb.AddForce(dragForce);
     }
+
     private void PlayJumpSound()
     {
-        if (audioSource != null && jumpSound != null && onGround) // So it doesn't spam the sound effect
-            Debug.Log("PlayJumpSoundCalled");
+        if (audioSource != null && jumpSound != null && onGround)
+        {
+            Debug.Log("PlayJumpSound called");
             audioSource.PlayOneShot(jumpSound);
+        }
     }
-    public override void OnDestroy() // Added override keyword
-    {                      
-        input.OnJumpPerformed -= PlayJumpSound;
-        base.OnDestroy(); // call the inherited OnDestroy
+
+    public override void OnDestroy()
+    {
+        input.OnJumpPerformed -= jumpSoundAction;
+        base.OnDestroy();
     }
+
     public void Jump(InputPayload input)
     {
         stateMachine.Jump(input);
-        //if (input.JumpTriggered)
-        //{
-        //    rb.AddForce(new Vector2(0, 1) * JumpForce);
-        //}
     }
 
     void CheckGround()
     {
-        // Three raycast points: center, left, and right
         Vector2 centerPos = transform.position;
         Vector2 leftPos = new Vector2(transform.position.x - raycastOffsetX, transform.position.y);
         Vector2 rightPos = new Vector2(transform.position.x + raycastOffsetX, transform.position.y);
 
-        // Cast rays downward from all three points
         RaycastHit2D centerHit = Physics2D.Raycast(centerPos, Vector2.down, raycastDistance, groundLayer);
         RaycastHit2D leftHit = Physics2D.Raycast(leftPos, Vector2.down, raycastDistance, groundLayer);
         RaycastHit2D rightHit = Physics2D.Raycast(rightPos, Vector2.down, raycastDistance, groundLayer);
 
-        // onGround is true if any of the three rays hit something
         onGround = centerHit.collider != null || leftHit.collider != null || rightHit.collider != null;
-        
     }
 
     private void OnDrawGizmos()
@@ -413,9 +338,5 @@ public class PlayerController : NetworkBehaviour
         Vector2 centerPos = transform.position;
         Vector2 leftPos = new Vector2(transform.position.x - raycastOffsetX, transform.position.y);
         Vector2 rightPos = new Vector2(transform.position.x + raycastOffsetX, transform.position.y);
-        //Debug.DrawRay(centerPos, Vector2.down * raycastDistance, Color.red);
-        //Debug.DrawRay(leftPos, Vector2.down * raycastDistance, Color.red);
-        //Debug.DrawRay(rightPos, Vector2.down * raycastDistance, Color.red);
     }
 }
-

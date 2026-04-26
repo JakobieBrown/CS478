@@ -218,6 +218,7 @@ GameObject:
   - component: {fileID: 1072948573494845647}
   - component: {fileID: -1426928058381942352}
   - component: {fileID: 5720254701911547271}
+  - component: {fileID: -5911275248376236414}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -413,6 +414,8 @@ MonoBehaviour:
     m_Bits: 64
   jumpSound: {fileID: 8300000, guid: 861e763f74952254e8fca100a5ee0e75, type: 3}
   finishSound: {fileID: 8300000, guid: 6f517a5c3220c854c9446509eaddbc70, type: 3}
+  raceTimer: {fileID: 0}
+  resultsManager: {fileID: 0}
   playerCamera: {fileID: 6548417423143664864}
   playerAudioListener: {fileID: 7279762981034893399}
   reconciliationThreshold: 10
@@ -502,6 +505,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatBlock
   _acceleration: 10
   _jumpForce: 500
+--- !u!114 &-5911275248376236414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3355434079170145332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dfeb80e97dc444f9071fd3917248d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &5925163922361883975
 GameObject:
   m_ObjectHideFlags: 0
