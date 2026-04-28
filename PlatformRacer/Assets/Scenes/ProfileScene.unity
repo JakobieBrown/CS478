@@ -8489,6 +8489,7 @@ GameObject:
   - component: {fileID: 1675819724}
   - component: {fileID: 1675819726}
   - component: {fileID: 1675819725}
+  - component: {fileID: 1675819727}
   m_Layer: 5
   m_Name: statsPanel
   m_TagString: Untagged
@@ -8555,6 +8556,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1675819723}
   m_CullTransparentMesh: 1
+--- !u!114 &1675819727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675819723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99499ba4e419cb24c9575a65fce190a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatsManager
+  cityTabButton: {fileID: 1634484391}
+  mountainTabButton: {fileID: 2042231346}
+  beachTabButton: {fileID: 531970747}
+  entryTemplate: {fileID: 952130001}
+  contentParent: {fileID: 1467502141}
 --- !u!1 &1682652297
 GameObject:
   m_ObjectHideFlags: 0
