@@ -13,6 +13,8 @@ public class RaceCountdown : MonoBehaviour
 
     void Start()
     {
+        RaceStarted = false;
+        hasStarted = false; // reset in case object persisted
         audioSource = GetComponent<AudioSource>();
     }
 
