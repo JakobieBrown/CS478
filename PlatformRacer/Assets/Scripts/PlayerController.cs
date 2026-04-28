@@ -58,7 +58,7 @@ public class PlayerController : NetworkBehaviour
 
     ClientNetworkTransform clientNetworkTransform;
 
-    private PlayerStateMachine stateMachine;
+    public PlayerStateMachine stateMachine;
 
     [SerializeField] CinemachineVirtualCamera playerCamera;
     [SerializeField] AudioListener playerAudioListener;
@@ -105,6 +105,7 @@ public class PlayerController : NetworkBehaviour
         input.Enable();
 
         stateMachine = new PlayerStateMachine(new PlayerStateFactory(this), this);
+        stateMachine.ChangeStates("PlayerStop");
 
         networkTimer = new NetworkTimer(k_serverTickRate);
         clientStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);

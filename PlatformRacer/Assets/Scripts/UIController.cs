@@ -26,7 +26,7 @@ public class UIController : MonoBehaviour
     {
         filePath = Application.persistentDataPath + "/serversettings.json";
         Debug.Log(Application.persistentDataPath);
-        submitButton.onClick.AddListener(OnSubmit);
+        //submitButton.onClick.AddListener(OnSubmit);
     }
 
     void SaveSettings(ServerSettings settings)
@@ -46,30 +46,30 @@ public class UIController : MonoBehaviour
             
     }
 
-    void OnSubmit()
-    {
-        string name = nameInput.text;
-        bool isPvP = pvpToggle.isOn;
+    //void OnSubmit()
+    //{
+    //    string name = nameInput.text;
+    //    bool isPvP = pvpToggle.isOn;
 
-        string privacy = "None";
+    //    string privacy = "None";
 
-        if (inviteOnlyToggle.isOn)
-            privacy = "Invite Only";
-        else if (friendsToggle.isOn)
-            privacy = "Friends";
-        else if (fofToggle.isOn)
-            privacy = "Friends of friends";
+    //    if (inviteOnlyToggle.isOn)
+    //        privacy = "Invite Only";
+    //    else if (friendsToggle.isOn)
+    //        privacy = "Friends";
+    //    else if (fofToggle.isOn)
+    //        privacy = "Friends of friends";
 
 
-        ServerSettings settings = new ServerSettings()
-        {
-            playerName = name,
-            isPvp = isPvP,
-            privacy = privacy
-        };
+    //    ServerSettings settings = new ServerSettings()
+    //    {
+    //        playerName = name,
+    //        isPvp = isPvP,
+    //        privacy = privacy
+    //    };
 
-        SaveSettings(settings);
-        LoadSettings();
+    //    SaveSettings(settings);
+    //    LoadSettings();
 
-    }
+    //}
 }

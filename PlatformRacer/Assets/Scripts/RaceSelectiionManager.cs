@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
+using Unity.Services.Multiplayer;
+using Unity.Netcode;
+using System.Threading.Tasks;
+
+
 
 public class RaceSelectiionManager : MonoBehaviour
 {
@@ -30,6 +35,9 @@ public class RaceSelectiionManager : MonoBehaviour
     private string selectedMap = "";
     private string selectedDistance = "";
 
+    private ISession session;
+    private bool isHost;
+
     void Start()
     {
         //Map Buttons
@@ -49,6 +57,34 @@ public class RaceSelectiionManager : MonoBehaviour
         startRaceButton.onClick.AddListener(StartRace);
         startRaceButton.interactable = false;
 
+        session = SessionState.CurrentSession;
+
+        if (session == null)
+        {
+            Debug.LogError("No session found.");
+            return;
+        }
+
+
+        SetInteractableState(session.IsHost);
+
+    }
+
+
+    void SetInteractableState(bool interactable)
+    {
+        // Map buttons
+        beachButton.interactable = interactable;
+        cityButton.interactable = interactable;
+        mountainButton.interactable = interactable;
+
+        // Distance buttons
+        dist200MButton.interactable = interactable;
+        dist400MButton.interactable = interactable;
+        dist800MButton.interactable = interactable;
+        dist3KMButton.interactable = interactable;
+        dist5KMButton.interactable = interactable;
+        dist10KMButton.interactable = interactable;
     }
 
     void SelectMap(string mapName, Button clicked)
@@ -94,13 +130,57 @@ public class RaceSelectiionManager : MonoBehaviour
         startRaceButton.interactable = (selectedMap != "" && selectedDistance != "");
     }
 
-    void StartRace()
+    async void StartRace()
     {
+        if (!session.IsHost)
+            return;
+
         PlayerPrefs.SetString("SelectedMap", selectedMap);
         PlayerPrefs.SetInt("SelectedDistance", ParseDistance(selectedDistance));
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(selectedMap);
+        string joinCode = await SessionManager.SetupHostRelay(session.MaxPlayers);
+
+        var props = new Dictionary<string, SessionProperty>
+    {
+        { "relayCode", new SessionProperty(joinCode, VisibilityPropertyOptions.Member) },
+        { "map",       new SessionProperty(selectedMap, VisibilityPropertyOptions.Member) },
+        { "distance",  new SessionProperty(selectedDistance, VisibilityPropertyOptions.Member) },
+        { "gameState", new SessionProperty("loading", VisibilityPropertyOptions.Member) }
+    };
+
+        session.AsHost().SetProperties(props);
+        await session.AsHost().SavePropertiesAsync();
+
+        // Wait for all clients to connect to Netcode relay
+        int expectedClients = session.Players.Count - 1;
+        float timeout = 15f;
+        float elapsed = 0f;
+
+        while (NetworkManager.Singleton.ConnectedClients.Count < expectedClients)
+        {
+            Debug.Log($"[StartRace] Waiting... {NetworkManager.Singleton.ConnectedClients.Count}/{expectedClients}");
+            await Task.Delay(200);
+            elapsed += 0.2f;
+
+            if (elapsed >= timeout)
+            {
+                Debug.LogError("[StartRace] Timed out waiting for clients.");
+                return;
+            }
+        }
+
+        // All clients are on the relay — now tell everyone to load the scene
+        var readyProps = new Dictionary<string, SessionProperty>
+    {
+        { "gameState", new SessionProperty("start", VisibilityPropertyOptions.Member) }
+    };
+
+        session.AsHost().SetProperties(readyProps);
+        await session.AsHost().SavePropertiesAsync();
+
+        // Host loads scene locally
+        SceneManager.LoadScene(selectedMap, LoadSceneMode.Single);
     }
 
     public int ParseDistance(string input)

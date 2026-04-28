@@ -47,20 +47,17 @@ public class ConnectionManager : MonoBehaviour
     void OnHostButtonClicked()
     {
         NetworkManager.Singleton.StartHost();
-        raceCountdown.BeginCountdown();
     }
 
 
     void OnClientButtonClicked()
     {
         NetworkManager.Singleton.StartClient();
-        raceCountdown.BeginCountdown();
     }
 
     void OnServerButtonClicked()
     {
         NetworkManager.Singleton.StartServer();
-        raceCountdown.BeginCountdown();
     }
 
     // Disclaimer: This is not the recommended way to create and stylize the UI elements, it is only utilized for the sake of simplicity.

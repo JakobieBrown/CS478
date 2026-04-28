@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using Unity.Services.Authentication;
 
 
 [System.Serializable]
@@ -29,6 +30,10 @@ public class CharacterCustomizer : MonoBehaviour
     void Start()
     {
         filePath = Application.persistentDataPath + "/playerprofile.json";
+
+        string json = File.ReadAllText(filePath);
+        ProfileSettings settings = JsonUtility.FromJson<ProfileSettings>(json); //TODO: Change this to something better
+        nameInput.text = settings.playerName;
     }
 
     void LoadSettings()
@@ -44,10 +49,10 @@ public class CharacterCustomizer : MonoBehaviour
 
     void SaveProfile(ProfileSettings settings)
     {
+        AuthenticationService.Instance.UpdatePlayerNameAsync(settings.playerName); // Save Name in authentication service
         string json = JsonUtility.ToJson(settings, true);
         File.WriteAllText(filePath, json);
         Debug.Log("Saved to " + filePath);
-
         if (ProfileManager.Instance != null)
         {
             ProfileManager.Instance.RefreshProfile();
