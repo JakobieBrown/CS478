@@ -1,19 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class SettingsManager : MonoBehaviour
+public class AudioManager : MonoBehaviour
 {
-    [SerializeField] private AudioMixer myMixer;
-    [SerializeField] private Slider volumeSlider;
-    
-    void Start()
+    [SerializeField] Slider volumeSlider;
+
+    private void Start()
     {
-        if (!PlayerPrefs.HasKey("musicVolume"))
+        
+        if (PlayerPrefs.HasKey("musicVolume"))
         {
-            PlayerPrefs.SetFloat("musicVolume", 1);
+            PlayerPrefs.SetFloat("musicVolume", 0.5f) ;
             Load();
         }
         else
@@ -27,14 +24,16 @@ public class SettingsManager : MonoBehaviour
         AudioListener.volume = volumeSlider.value;
         Save();
     }
-    
-    private void Load()
+
+    public void Load()
     {
         volumeSlider.value = PlayerPrefs.GetFloat("musicVolume");
     }
 
-    private void Save()
+    public void Save()
     {
         PlayerPrefs.SetFloat("musicVolume", volumeSlider.value);
     }
+
 }
+    
