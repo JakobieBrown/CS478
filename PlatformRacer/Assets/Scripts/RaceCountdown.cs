@@ -10,6 +10,8 @@ public class RaceCountdown : MonoBehaviour
     public AudioClip backgroundMusic;
     private AudioSource audioSource;
     private bool hasStarted = false;
+    public RaceTimer raceTimer;
+    public static bool RaceStarted { get; private set; } = false;
 
     void Start()
     {
@@ -22,6 +24,7 @@ public class RaceCountdown : MonoBehaviour
         Debug.Log("BeginCountdown called, hasStarted: " + hasStarted);
         if (hasStarted) return;
         hasStarted = true;
+        RaceStarted = false;
         StartCoroutine(StartCountdown());
     }
 
@@ -44,10 +47,17 @@ public class RaceCountdown : MonoBehaviour
         audioSource.PlayOneShot(goSound);
         yield return new WaitForSeconds(1f);
 
+        RaceStarted = true;
+
         countdownText.gameObject.SetActive(false);
 
         audioSource.clip = backgroundMusic;
         audioSource.loop = true;
         audioSource.Play();
+
+        if (raceTimer != null)
+        {
+            raceTimer.StartTimer();
+        }
     }
 }
