@@ -5,7 +5,6 @@ public class ProfileManager : MonoBehaviour
 {
     public static ProfileManager Instance;
     public ProfileSettings Profile { get; private set; }
-    private string filePath;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     void Awake()
@@ -23,7 +22,7 @@ public class ProfileManager : MonoBehaviour
     }
     void LoadProfile()
     {
-        filePath = Application.persistentDataPath + "/playerprofile.json";
+        string filePath = Application.persistentDataPath + "/playerprofile.json";
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
