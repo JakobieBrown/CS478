@@ -19,6 +19,10 @@ public class ResultsManager : MonoBehaviour
     }
     public void BackToMenu()
     {
+        if (Unity.Netcode.NetworkManager.Singleton != null)
+        {
+            Unity.Netcode.NetworkManager.Singleton.Shutdown();
+        }
         UnityEngine.SceneManagement.SceneManager.LoadScene("MenuScene");
     }
 
