@@ -8,7 +8,6 @@ public class MenuManager : MonoBehaviour
     public GameObject hostMenu;
     public GameObject joinMenu;
     public GameObject settingsMenu;
-    public GameObject logoText;
 
     public void ShowMainMenu() 
     { 
@@ -17,7 +16,6 @@ public class MenuManager : MonoBehaviour
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
         settingsMenu.SetActive(false);
-        logoText.SetActive(true);
     }
 
     public void ShowStartMenu()
@@ -27,7 +25,6 @@ public class MenuManager : MonoBehaviour
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
         settingsMenu.SetActive(false);
-        logoText.SetActive(true);
     }
 
     public void ShowHostMenu()
@@ -37,7 +34,6 @@ public class MenuManager : MonoBehaviour
         hostMenu.SetActive(true);
         joinMenu.SetActive(false);
         settingsMenu.SetActive(false);
-        logoText.SetActive(false);
     }
     public void ShowJoinMenu()
     {
@@ -46,7 +42,6 @@ public class MenuManager : MonoBehaviour
         hostMenu.SetActive(false);
         joinMenu.SetActive(true);
         settingsMenu.SetActive(false);
-        logoText.SetActive(false);
     }
     public void ShowSettingsMenu()
     {
@@ -55,7 +50,6 @@ public class MenuManager : MonoBehaviour
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
         settingsMenu.SetActive(true);
-        logoText.SetActive(false);
     }
 
     public void ExitGame()
